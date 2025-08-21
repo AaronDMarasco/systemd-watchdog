@@ -23,6 +23,8 @@ build: poetry_check clean
 	poetry build --clean -vv
 
 lint: tool_check
+	echo Poetry:
+	poetry check
 	echo Black:
 	black *.py
 	echo Ruff:
@@ -49,7 +51,7 @@ pypi-deploy: lint build test
 
 .PHONY: tool_check
 .SILENT: tool_check
-tool_check:
+tool_check: poetry_check
 	for t in black mypy ruff; do pip3 list | egrep "^$${t}\s" >/dev/null || (echo "Need to ' pip3 install $${t} '" && false); done
 
 .PHONY: poetry_check
