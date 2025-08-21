@@ -1,20 +1,22 @@
 """
-sd_notify(3) and sd_watchdog_enabled(3) client functionality implemented in Python 3 for writing Python daemons
+sd_notify(3) and sd_watchdog_enabled(3) client functionality implemented in Python 3 for writing Python daemons.
 
 See README.md and examples/daemon.py for usage
 """
 
-from datetime import timedelta, datetime
 import os
 import socket
+from datetime import datetime, timedelta, timezone
 
 
-class watchdog:
+class watchdog:  # noqa: N801 (too late now to properly case)
+    """The systemd watchdog class."""
+
     _default_timeout = timedelta(hours=24)  # Safe value to do math with; if disabled won't matter
 
-    def __init__(self, sock=None, addr=None):
+    def __init__(self, sock=None, addr=None):  # noqa: D107
         self._address = addr or os.getenv("NOTIFY_SOCKET")
-        self._lastcall = datetime.fromordinal(1)
+        self._lastcall = datetime.fromtimestamp(1, tz=timezone.utc)
         self._socket = sock or socket.socket(family=socket.AF_UNIX, type=socket.SOCK_DGRAM)
         self._timeout_td = self._default_timeout
 
@@ -26,28 +28,29 @@ class watchdog:
         if self._address:
             wtime = os.getenv("WATCHDOG_USEC")
             wpid = os.getenv("WATCHDOG_PID")
-            if wtime and wtime.isdigit():
+            if wtime and wtime.isdigit():  # noqa: SIM102
                 if wpid is None or (wpid.isdigit() and (wpid == str(os.getpid()))):
                     self._timeout_td = timedelta(microseconds=int(wtime))
 
     def _send(self, msg):
-        """Send string as bytes on the notification socket"""
+        """Send string as bytes on the notification socket."""
         if self.is_enabled:
             self._socket.sendto(msg.encode(), self._address)
 
     @property
     def is_enabled(self):
-        """Property indicating whether watchdog is enabled"""
+        """Property indicating whether watchdog is enabled."""
         return bool(self._address)
 
     def notify(self):
-        """Send healthy notification to systemd"""
-        self._lastcall = datetime.now()
+        """Send healthy notification to systemd."""
+        self._lastcall = self._now
         self._send("WATCHDOG=1\n")
 
     @property
     def notify_due(self):
-        return (datetime.now() - self._lastcall) >= (self._timeout_td / 2)
+        """Report if notification is due."""
+        return (self._now - self._lastcall) >= (self._timeout_td / 2)
 
     def notify_error(self, msg=None):
         """
@@ -59,8 +62,12 @@ class watchdog:
             self.status(msg)
         self._send("WATCHDOG=trigger\n")
 
+    @property
+    def _now(self) -> datetime:
+        return datetime.now(tz=timezone.utc)
+
     def ping(self):
-        """Send healthy notification to systemd if prudent to"""
+        """Send healthy notification to systemd if prudent to."""
         if self.notify_due:
             self.notify()
             return True
@@ -69,19 +76,19 @@ class watchdog:
     beat = ping  # alias for ping if you prefer heartbeat terminology
 
     def ready(self):
-        """Report ready service state, i.e. completed init"""
+        """Report ready service state, i.e. completed init."""
         self._send("READY=1\n")
 
     def status(self, msg):
-        """Send a free-form service status message"""
-        self._send("STATUS=%s\n" % (msg,))
+        """Send a free-form service status message."""
+        self._send(f"STATUS={msg}\n")
 
     @property
     def timeout(self):
-        """Report the watchdog window in microseconds as int (cf. sd_watchdog_enabled(3) )"""
+        """Report the watchdog window in microseconds as int (cf. sd_watchdog_enabled(3) )."""
         return int(self._timeout_td / timedelta(microseconds=1))
 
     @property
     def timeout_td(self):
-        """Report the watchdog window as datetime.timedelta (cf. sd_watchdog_enabled(3) )"""
+        """Report the watchdog window as datetime.timedelta (cf. sd_watchdog_enabled(3) )."""
         return self._timeout_td

@@ -1,12 +1,12 @@
-.PHONY: build check clean help install pypi-deploy test uninstall
-.SILENT: build check help install pypi-deploy test uninstall
+.PHONY: build lint clean help install pypi-deploy test uninstall
+.SILENT: build lint help install pypi-deploy test uninstall
 
 define HELP
 
 Targets:
 
   - build      - builds the 'wheel' distribution file (calls clean)
-  - check      - run linters
+  - lint       - run formatters and linters
   - clean      - cleans temporary files
   - install    - builds and locally installs to your interpreter (calls uninstall and build)
   - uninstall  - removes locally installed copy
@@ -22,7 +22,7 @@ help:
 build: poetry_check clean
 	poetry build --clean -vv
 
-check: tool_check
+lint: tool_check
 	black *.py
 	ruff check --output-format=concise *.py
 	mypy *.py
@@ -49,7 +49,6 @@ pypi-deploy: build test
 .SILENT: tool_check
 tool_check:
 	for t in black mypy ruff; do pip3 list | egrep "^$${t}\s" >/dev/null || (echo "Need to ' pip3 install $${t} '" && false); done
-
 
 .PHONY: poetry_check
 .SILENT: poetry_check
