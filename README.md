@@ -130,6 +130,7 @@ Aaron D. Marasco Aug 2025 (1.0.0)
  * Added typing
  * Modernized build (pyproject.toml, poetry, etc)
  * Renamed watchdog => WatchDog
+
 Aaron D. Marasco May 2020 (0.9.0)
  * Forked from the sd-notify project <https://github.com/stigok/sd-notify>
  * Additional contributors can be found in GitHub repository history
