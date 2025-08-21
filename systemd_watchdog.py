@@ -3,22 +3,24 @@ sd_notify(3) and sd_watchdog_enabled(3) client functionality implemented in Pyth
 
 See README.md and examples/daemon.py for usage
 """
+
 from datetime import timedelta, datetime
 import os
 import socket
 
-class watchdog():
+
+class watchdog:
     _default_timeout = timedelta(hours=24)  # Safe value to do math with; if disabled won't matter
+
     def __init__(self, sock=None, addr=None):
         self._address = addr or os.getenv("NOTIFY_SOCKET")
         self._lastcall = datetime.fromordinal(1)
-        self._socket = sock or socket.socket(family=socket.AF_UNIX,
-                                             type=socket.SOCK_DGRAM)
+        self._socket = sock or socket.socket(family=socket.AF_UNIX, type=socket.SOCK_DGRAM)
         self._timeout_td = self._default_timeout
 
         # Note this fix is untested in a live system; https://unix.stackexchange.com/q/206386
-        if self._address and self._address[0] == '@':
-            self._address = '\0'+self._address[1:]
+        if self._address and self._address[0] == "@":
+            self._address = "\0" + self._address[1:]
 
         # Check for our timeout
         if self._address:
@@ -63,6 +65,7 @@ class watchdog():
             self.notify()
             return True
         return False
+
     beat = ping  # alias for ping if you prefer heartbeat terminology
 
     def ready(self):
@@ -76,7 +79,7 @@ class watchdog():
     @property
     def timeout(self):
         """Report the watchdog window in microseconds as int (cf. sd_watchdog_enabled(3) )"""
-        return int(self._timeout_td/timedelta(microseconds=1))
+        return int(self._timeout_td / timedelta(microseconds=1))
 
     @property
     def timeout_td(self):

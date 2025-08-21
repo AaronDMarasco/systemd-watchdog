@@ -26,12 +26,18 @@ Issues = "http://github.com/AaronDMarasco/systemd-watchdog/issues"
 
 [tool.black]
 line-length = 120
-target-version = "py310"
+target-version = ["py310"]
 
 [tool.ruff]
 line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["*"]
-ignore = []
+select = ["ALL"]
+ignore = ["PT009"]
+
+[tool.ruff.lint.per-file-ignores]
+"test_*.py" = [
+    "D102",    # don't care about docstrings
+    "SLF001",  # pokes internals
+]

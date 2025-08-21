@@ -1,5 +1,5 @@
-.PHONY: build clean help install pypi-deploy test uninstall
-.SILENT: help install pypi-deploy test uninstall
+.PHONY: build check clean help install pypi-deploy test uninstall
+.SILENT: build check help install pypi-deploy test uninstall
 
 define HELP
 
@@ -23,7 +23,9 @@ build: poetry_check clean
 	poetry build --clean -vv
 
 check: tool_check
-	true
+	black *.py
+	ruff check --output-format=concise *.py
+	mypy *.py
 
 clean:
 	rm -rf build dist *.egg-info __pycache__
