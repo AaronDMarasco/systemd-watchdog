@@ -23,8 +23,11 @@ build: poetry_check clean
 	poetry build --clean -vv
 
 lint: tool_check
+	echo Black:
 	black *.py
+	echo Ruff:
 	ruff check --output-format=concise *.py
+	echo MyPy:
 	mypy *.py
 
 clean:
@@ -39,9 +42,8 @@ uninstall:
 test:
 	./test_systemd_watchdog.py
 
-pypi-deploy: build test
-	# twine upload --repository pypi dist/*
-	# if this fails, need to put API key into poetry
+pypi-deploy: lint build test
+	# if this fails, need to put API key into poetry:
 	# poetry config pypi-token.pypi pypi-XXX
 	poetry publish
 
