@@ -19,7 +19,7 @@ $ make install
 ```
 
 ## Usage
-### `example.py`
+### `README_example.py`
 ```python
 #!/bin/env python3
 """systemd_watchdog example."""
@@ -69,7 +69,7 @@ In one terminal:
 `socat unix-recv:/tmp/tempo.sock -`
 
 In another terminal:
-`NOTIFY_SOCKET=/tmp/tempo.sock WATCHDOG_USEC=5000000 python3 example.py`
+`NOTIFY_SOCKET=/tmp/tempo.sock WATCHDOG_USEC=5000000 python3 README_example.py`
 
 Expected output (in first terminal):
 ```
@@ -88,6 +88,9 @@ WATCHDOG=1
 STATUS=An irrecoverable error occured!
 WATCHDOG=trigger
 ```
+
+### Second Example
+A second example, including the required systemd unit files, is included in the source on GitHub.
 
 ## Public Interface
 ### `systemd_watchdog.WatchDog` - commonly used properties and methods

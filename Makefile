@@ -26,11 +26,11 @@ lint: tool_check
 	echo Poetry:
 	poetry check
 	echo Black:
-	black *.py
+	find -name '*.py' | xargs black
 	echo Ruff:
-	ruff check --output-format=concise *.py
+	find -name '*.py' | xargs ruff check --output-format=concise
 	echo MyPy:
-	mypy *.py
+	find -name '*.py' | xargs mypy
 
 clean:
 	rm -rf build dist *.egg-info __pycache__
