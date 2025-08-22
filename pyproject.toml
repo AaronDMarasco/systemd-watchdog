@@ -18,7 +18,7 @@ license = "MIT"
 name = "systemd-watchdog"
 readme = "README.md"
 requires-python = ">=3.9"
-version = "1.0.0"
+version = "1.0.1"
 
 [project.urls]
 Homepage = "http://github.com/AaronDMarasco/systemd-watchdog/"

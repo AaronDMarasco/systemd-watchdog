@@ -133,7 +133,7 @@ If `msg` is provided, it will be reported as a status message prior to the error
 
 
 ## History
-Aaron D. Marasco Aug 2025 (1.0.0)
+Aaron D. Marasco Aug 2025 (1.0.0, 1.0.1)
  * Added typing
  * Modernized build (pyproject.toml, poetry, etc)
  * Renamed watchdog => WatchDog
