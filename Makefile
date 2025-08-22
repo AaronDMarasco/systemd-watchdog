@@ -1,11 +1,12 @@
-.PHONY: build clean help install pypi-deploy test uninstall wheel_check
-.SILENT: help install pypi-deploy test uninstall wheel_check
+.PHONY: build lint clean help install pypi-deploy test uninstall
+.SILENT: build lint help install pypi-deploy test uninstall
 
 define HELP
 
 Targets:
 
   - build      - builds the 'wheel' distribution file (calls clean)
+  - lint       - run formatters and linters
   - clean      - cleans temporary files
   - install    - builds and locally installs to your interpreter (calls uninstall and build)
   - uninstall  - removes locally installed copy
@@ -18,8 +19,18 @@ help:
 	echo "$${HELP}"
 	false
 
-build: wheel_check clean
-	python3 setup.py sdist bdist_wheel
+build: poetry_check clean
+	poetry build --clean -vv
+
+lint: tool_check
+	echo Poetry:
+	poetry check
+	echo Black:
+	black *.py
+	echo Ruff:
+	ruff check --output-format=concise *.py
+	echo MyPy:
+	mypy *.py
 
 clean:
 	rm -rf build dist *.egg-info __pycache__
@@ -33,12 +44,22 @@ uninstall:
 test:
 	./test_systemd_watchdog.py
 
-pypi-deploy: build test ~/.pypirc
-	twine upload --repository pypi dist/*
+pypi-deploy: lint build test
+	# if this fails, need to put API key into poetry:
+	# poetry config pypi-token.pypi pypi-XXX
+	poetry publish
 
-WHEEL_INSTALLED = $(shell pip3 list | egrep '^wheel\s')
-wheel_check:
-ifeq ($(WHEEL_INSTALLED),)
-  $(error Need to 'pip3 install wheel')
+.PHONY: tool_check
+.SILENT: tool_check
+tool_check: poetry_check
+	for t in black mypy ruff; do pip3 list | egrep "^$${t}\s" >/dev/null || (echo "Need to ' pip3 install $${t} '" && false); done
+
+.PHONY: poetry_check
+.SILENT: poetry_check
+
+POETRY_INSTALLED = $(shell pip3 list | egrep '^poetry\s')
+poetry_check:
+ifeq ($(POETRY_INSTALLED),)
+  $(error Need to ' pip3 install "poetry>=2" ')
 endif
 	true

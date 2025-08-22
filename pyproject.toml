@@ -1,0 +1,46 @@
+[build-system]
+requires = ["poetry-core>=2"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+authors = [
+  {name = "AaronDMarasco", email = "systemd-watchdog@marascos.net"},
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3 :: Only",
+]
+description = "sd_notify and sd_watchdog_enabled functionality for writing Python daemons under systemd"
+keywords = ["sd_notify", "sd_watchdog_enabled", "systemd", "watchdog"]
+license = "MIT"
+name = "systemd-watchdog"
+readme = "README.md"
+requires-python = ">=3.9"
+version = "1.0.0"
+
+[project.urls]
+Homepage = "http://github.com/AaronDMarasco/systemd-watchdog/"
+Issues = "http://github.com/AaronDMarasco/systemd-watchdog/issues"
+
+[tool.black]
+line-length = 120
+target-version = ["py310"]
+
+[tool.poetry]
+include = ["py.typed"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D203", "D212", "PT009"]
+
+[tool.ruff.lint.per-file-ignores]
+"test_*.py" = [
+    "D102",    # don't care about docstrings
+    "SLF001",  # pokes internals
+]

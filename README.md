@@ -3,7 +3,6 @@
 ![](https://img.shields.io/pypi/l/systemd-watchdog)
 ![](https://img.shields.io/pypi/v/systemd-watchdog.svg)
 ![](https://img.shields.io/travis/com/aarondmarasco/systemd-watchdog)
-![](https://img.shields.io/badge/tested%20versions-3.5%7C3.6%7C3.7%7C3.8%7Cpypy3-success)
 ![](https://img.shields.io/pypi/wheel/systemd-watchdog.svg)
 ![](https://img.shields.io/pypi/pyversions/systemd-watchdog.svg)
 
@@ -25,7 +24,7 @@ $ make install
 import systemd_watchdog
 import time
 
-wd = systemd_watchdog.watchdog()
+wd = systemd_watchdog.WatchDog()
 if not wd.is_enabled:
     # Then it's probably not running is systemd with watchdog enabled
     raise Exception("Watchdog not enabled")
@@ -87,7 +86,7 @@ WATCHDOG=trigger
 ```
 
 ## Public Interface
-### `systemd_watchdog.watchdog` - commonly used properties and methods
+### `systemd_watchdog.WatchDog` - commonly used properties and methods
 #### `ping`
 The only method required for the simplest implementation; combines `notify_due` with `notify()` to _only_ send "alive" notifications at reasonable intervals.
 
@@ -102,7 +101,7 @@ Report ready service state, _i.e._ completed init (only needed with `Type=notify
 #### `status(msg)`
 Send a service status message.
 
-### `systemd_watchdog.watchdog` - less-used properties and methods
+### `systemd_watchdog.WatchDog` - less-used properties and methods
 #### `is_enabled`
 Boolean property stating whether watchdog capability is enabled.
 
@@ -127,7 +126,12 @@ If `msg` is provided, it will be reported as a status message prior to the error
 
 
 ## History
-Aaron D. Marasco May 2020
+Aaron D. Marasco Aug 2025 (1.0.0)
+ * Added typing
+ * Modernized build (pyproject.toml, poetry, etc)
+ * Renamed watchdog => WatchDog
+
+Aaron D. Marasco May 2020 (0.9.0)
  * Forked from the sd-notify project <https://github.com/stigok/sd-notify>
  * Additional contributors can be found in GitHub repository history
 
