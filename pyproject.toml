@@ -28,6 +28,9 @@ Issues = "http://github.com/AaronDMarasco/systemd-watchdog/issues"
 line-length = 120
 target-version = ["py310"]
 
+[tool.poetry]
+include = ["py.typed"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py310"
