@@ -4,5 +4,4 @@ build/
 dist/
 *.egg-info
 *.py[cod]
-example.py
 poetry.lock

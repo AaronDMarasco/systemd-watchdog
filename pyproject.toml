@@ -18,7 +18,7 @@ license = "MIT"
 name = "systemd-watchdog"
 readme = "README.md"
 requires-python = ">=3.9"
-version = "1.0.0"
+version = "1.0.1"
 
 [project.urls]
 Homepage = "http://github.com/AaronDMarasco/systemd-watchdog/"
@@ -29,7 +29,9 @@ line-length = 120
 target-version = ["py310"]
 
 [tool.poetry]
-include = ["py.typed"]
+include = [
+  { path = "example/*", format = "sdist" },
+]
 
 [tool.ruff]
 line-length = 120
@@ -44,3 +46,4 @@ ignore = ["D203", "D212", "PT009"]
     "D102",    # don't care about docstrings
     "SLF001",  # pokes internals
 ]
+"systemd_watchdog/__init__.py" = ["F401"]

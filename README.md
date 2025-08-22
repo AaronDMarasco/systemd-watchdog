@@ -19,15 +19,19 @@ $ make install
 ```
 
 ## Usage
-### `example.py`
+### `README_example.py`
 ```python
-import systemd_watchdog
+#!/bin/env python3
+"""systemd_watchdog example."""
 import time
+
+import systemd_watchdog
 
 wd = systemd_watchdog.WatchDog()
 if not wd.is_enabled:
     # Then it's probably not running is systemd with watchdog enabled
-    raise Exception("Watchdog not enabled")
+    msg = "Watchdog not enabled"
+    raise Exception(msg)  # noqa: TRY002
 
 # Report a status message
 wd.status("Starting my service...")
@@ -50,7 +54,7 @@ time.sleep(timeout_half_sec)
 wd.notify()
 wd.status("Spamming loop - should only see 2-3 notifications")
 t = float(0)
-while t <= 4*timeout_half_sec:
+while t <= 4 * timeout_half_sec:
     time.sleep(0.05)
     wd.ping()
     t += 0.05
@@ -65,7 +69,7 @@ In one terminal:
 `socat unix-recv:/tmp/tempo.sock -`
 
 In another terminal:
-`NOTIFY_SOCKET=/tmp/tempo.sock WATCHDOG_USEC=5000000 python example.py`
+`NOTIFY_SOCKET=/tmp/tempo.sock WATCHDOG_USEC=5000000 python3 README_example.py`
 
 Expected output (in first terminal):
 ```
@@ -84,6 +88,9 @@ WATCHDOG=1
 STATUS=An irrecoverable error occured!
 WATCHDOG=trigger
 ```
+
+### Second Example
+A second example, including the required systemd unit files, is included in the source on GitHub.
 
 ## Public Interface
 ### `systemd_watchdog.WatchDog` - commonly used properties and methods
@@ -126,7 +133,7 @@ If `msg` is provided, it will be reported as a status message prior to the error
 
 
 ## History
-Aaron D. Marasco Aug 2025 (1.0.0)
+Aaron D. Marasco Aug 2025 (1.0.0, 1.0.1)
  * Added typing
  * Modernized build (pyproject.toml, poetry, etc)
  * Renamed watchdog => WatchDog
