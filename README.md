@@ -21,13 +21,17 @@ $ make install
 ## Usage
 ### `example.py`
 ```python
-import systemd_watchdog
+#!/bin/env python3
+"""systemd_watchdog example."""
 import time
+
+import systemd_watchdog
 
 wd = systemd_watchdog.WatchDog()
 if not wd.is_enabled:
     # Then it's probably not running is systemd with watchdog enabled
-    raise Exception("Watchdog not enabled")
+    msg = "Watchdog not enabled"
+    raise Exception(msg)  # noqa: TRY002
 
 # Report a status message
 wd.status("Starting my service...")
@@ -50,7 +54,7 @@ time.sleep(timeout_half_sec)
 wd.notify()
 wd.status("Spamming loop - should only see 2-3 notifications")
 t = float(0)
-while t <= 4*timeout_half_sec:
+while t <= 4 * timeout_half_sec:
     time.sleep(0.05)
     wd.ping()
     t += 0.05
@@ -65,7 +69,7 @@ In one terminal:
 `socat unix-recv:/tmp/tempo.sock -`
 
 In another terminal:
-`NOTIFY_SOCKET=/tmp/tempo.sock WATCHDOG_USEC=5000000 python example.py`
+`NOTIFY_SOCKET=/tmp/tempo.sock WATCHDOG_USEC=5000000 python3 example.py`
 
 Expected output (in first terminal):
 ```
