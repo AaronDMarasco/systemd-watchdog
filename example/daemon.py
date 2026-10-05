@@ -1,5 +1,6 @@
 #!/bin/env python3
 """Example of a daemon using systemd_watchdog."""
+
 import time
 
 import systemd_watchdog
@@ -46,7 +47,7 @@ wd.status(f"ping() sent {sum(sends)} messages out of {max_count} calls")
 time.sleep(5)
 
 # Report an error to the service manager
-# wd.notify_error("Blowing up on purpose!")  # noqa: ERA001
+# wd.notify_error("Blowing up on purpose!")
 # The service manager will probably kill the program here
 
 wd.status("Simulating hang")

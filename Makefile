@@ -1,5 +1,5 @@
-.PHONY: build lint clean help install pypi-deploy test uninstall
-.SILENT: build lint help install pypi-deploy test uninstall
+.PHONY: build check lint clean help install pypi-deploy test uninstall
+.SILENT: build check help install pypi-deploy test uninstall
 
 define HELP
 
@@ -19,47 +19,36 @@ help:
 	echo "$${HELP}"
 	false
 
-build: poetry_check clean
-	poetry build --clean -vv
+build: tool_check clean
+	uv run poetry build --clean -vv
+
+check: lint
 
 lint: tool_check
-	echo Poetry:
-	poetry check
-	echo Black:
-	find -name '*.py' | xargs black
-	echo Ruff:
-	find -name '*.py' | xargs ruff check --output-format=concise
-	echo MyPy:
-	find -name '*.py' | xargs mypy
+	uv --preview-features format format --version "0.16.10"
+	uv run ssort --check --diff
+	uv run ruff check .
+	uv run mypy .
+	uv run pyrefly check --summarize-errors
 
 clean:
 	rm -rf build dist *.egg-info __pycache__
 
 install: build uninstall
-	pip3 install --user ./dist/*.whl
+	uv pip install ./dist/*.whl
 
 uninstall:
-	-pip3 uninstall -y systemd_watchdog
+	-uv pip uninstall systemd_watchdog
 
 test:
-	./test_systemd_watchdog.py
+	uv run pytest -vv --cov --cov-report=html --cov-report=term-missing
 
 pypi-deploy: lint build test
 	# if this fails, need to put API key into poetry:
 	# poetry config pypi-token.pypi pypi-XXX
-	poetry publish
+	uv run poetry publish
 
 .PHONY: tool_check
 .SILENT: tool_check
-tool_check: poetry_check
-	for t in black mypy ruff; do pip3 list | egrep "^$${t}\s" >/dev/null || (echo "Need to ' pip3 install $${t} '" && false); done
-
-.PHONY: poetry_check
-.SILENT: poetry_check
-
-POETRY_INSTALLED = $(shell pip3 list | egrep '^poetry\s')
-poetry_check:
-ifeq ($(POETRY_INSTALLED),)
-  $(error Need to ' pip3 install "poetry>=2" ')
-endif
-	true
+tool_check:
+	uv sync

@@ -5,3 +5,4 @@ dist/
 *.egg-info
 *.py[cod]
 poetry.lock
+.coverage

@@ -23,6 +23,7 @@ $ make install
 ```python
 #!/bin/env python3
 """systemd_watchdog example."""
+
 import time
 
 import systemd_watchdog
