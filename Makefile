@@ -25,7 +25,7 @@ build: tool_check clean
 check: lint
 
 lint: tool_check
-	uv --preview-features format format --version "0.16.10"
+	uv --preview-features format format --version "0.17.3"
 	uv run ssort --check --diff
 	uv run ruff check .
 	uv run mypy .

@@ -1,19 +1,31 @@
 language: python
 
-cache: pip
+cache:
+  directories:
+    - $HOME/.cache/uv
+    - .venv
+
+before_install:
+  # Download and install uv using the official standalone installer
+  - curl -LsSf https://astral.sh/uv/install.sh | sh
+  # Add uv to the system PATH for the current session
+  - export PATH="$HOME/.local/bin:$PATH"
+
+install:
+    # Synchronize dependencies
+    - uv self update
+    - uv sync
 
 python:
   - 3.12
   - 3.13
+  - 3.14
+  - 3.15
   - pypy3
 
 branches:
   except:
     - /^[0-9]+\.[0-9]+\.[0-9]+/
 
-install:
-  - pip install pipenv
-  - pipenv install --dev --skip-lock
-
 script:
-  pipenv run pytest ./test_systemd_watchdog.py
+  uv run pytest -vv --cov --cov-report=html --cov-report=term-missing
