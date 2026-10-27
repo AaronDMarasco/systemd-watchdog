@@ -25,7 +25,7 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Set up Python ${{ matrix: -version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
