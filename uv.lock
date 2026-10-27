@@ -1428,7 +1428,7 @@ wheels = [
 
 [[package]]
 name = "systemd-watchdog"
-version = "1.0.2"
+version = "1.0.3"
 source = { virtual = "." }
 
 [package.dev-dependencies]
