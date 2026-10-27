@@ -24,6 +24,11 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.2
         with:
           enable-cache: true
+          prune-cache: false
+          cache-dependency-glob: |
+            pyproject.toml
+            uv.lock
+            requirements*.txt
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v7
