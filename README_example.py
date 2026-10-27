@@ -1,5 +1,6 @@
 #!/bin/env python3
 """systemd_watchdog example."""
+
 import time
 
 import systemd_watchdog
@@ -8,7 +9,7 @@ wd = systemd_watchdog.WatchDog()
 if not wd.is_enabled:
     # Then it's probably not running is systemd with watchdog enabled
     msg = "Watchdog not enabled"
-    raise Exception(msg)  # noqa: TRY002
+    raise Exception(msg)  # ruff: ignore[raise-vanilla-class]
 
 # Report a status message
 wd.status("Starting my service...")

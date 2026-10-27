@@ -1,5 +1,6 @@
 #!/bin/env python3
 """systemd_watchdog unit tests."""
+
 from __future__ import annotations
 
 import os
@@ -25,35 +26,39 @@ class WatchdogTestCase(TestCase):
 
     def test_enabled(self) -> None:
         # We expect these 3 variables to be checked whenever NOTIFY_SOCKET is set:
-        expected_vars = [call("NOTIFY_SOCKET"), call("WATCHDOG_USEC"), call("WATCHDOG_PID")]
+        expected_vars = [
+            call("NOTIFY_SOCKET"),
+            call("WATCHDOG_USEC"),
+            call("WATCHDOG_PID"),
+        ]
 
         # With no environment set
         with patch("os.getenv", return_value=None) as getenv_mock:
             cut = WatchDog(sock=Mock(spec=["sendto"]))
             res = cut.is_enabled
             getenv_mock.assert_called_once_with("NOTIFY_SOCKET")
-            self.assertFalse(res)
+            assert not res
 
         # With empty string set
         with patch("os.getenv", return_value="") as getenv_mock:
             cut = WatchDog(sock=Mock(spec=["sendto"]))
             res = cut.is_enabled
             getenv_mock.assert_called_once_with("NOTIFY_SOCKET")
-            self.assertFalse(res)
+            assert not res
 
         # With environment set
         with patch("os.getenv", return_value=self.TEST_ADDR) as getenv_mock:
             cut = WatchDog(sock=Mock(spec=["sendto"]))
             res = cut.is_enabled
             getenv_mock.assert_has_calls(expected_vars)
-            self.assertTrue(res)
+            assert res
 
         # With abstract namespace socket set
         with patch("os.getenv", return_value="@" + self.TEST_ADDR) as getenv_mock:
             cut = WatchDog(sock=Mock(spec=["sendto"]))
             res = cut.is_enabled
             getenv_mock.assert_has_calls(expected_vars)
-            self.assertTrue(res)
+            assert res
 
     def test_addr_parsing(self) -> None:
         # Standard address
@@ -99,7 +104,7 @@ class WatchdogTestCase(TestCase):
         cut = WatchDog(sock=Mock(spec=["sendto"]), addr=self.TEST_ADDR)
         with patch("systemd_watchdog.WatchDog._send") as patched_send:
             cut.notify_error(msg="Hello world!")
-            self.assertEqual(patched_send.call_count, 2)
+            assert patched_send.call_count == 2
             patched_send.assert_any_call("WATCHDOG=trigger\n")
             patched_send.assert_any_call("STATUS=Hello world!\n")
 
@@ -111,29 +116,29 @@ class WatchdogTestCase(TestCase):
         # simplest, good case (no PID at all)
         with patch.dict(os.environ, test_dict, clear=True):
             cut = WatchDog(sock=Mock(spec=["sendto"]))
-            self.assertEqual(cut.timeout, 15000000)
+            assert cut.timeout == 15000000
 
         # with our PID
         with patch.dict(os.environ, {"WATCHDOG_PID": str(os.getpid()), **test_dict}, clear=True):
             cut = WatchDog(sock=Mock(spec=["sendto"]))
-            self.assertEqual(cut.timeout, 15000000)
+            assert cut.timeout == 15000000
 
         # with our PID (as timedelta)
         with patch.dict(os.environ, {"WATCHDOG_PID": str(os.getpid()), **test_dict}, clear=True):
             cut = WatchDog(sock=Mock(spec=["sendto"]))
-            self.assertEqual(cut.timeout_td, timedelta(microseconds=15000000))
+            assert cut.timeout_td == timedelta(microseconds=15000000)
 
         # bad PID (not ours)
         # somebody's going to try to test us in a container and get mad when we were PID 1
         with patch.dict(os.environ, {"WATCHDOG_PID": str(1), **test_dict}, clear=True):
             cut = WatchDog(sock=Mock(spec=["sendto"]))
             default_timeout = cut._default_timeout / timedelta(microseconds=1)
-            self.assertEqual(cut.timeout, default_timeout)
+            assert cut.timeout == default_timeout
 
         # worse PID
         with patch.dict(os.environ, {"WATCHDOG_PID": "not even a number", **test_dict}, clear=True):
             cut = WatchDog(sock=Mock(spec=["sendto"]))
-            self.assertEqual(cut.timeout, default_timeout)
+            assert cut.timeout == default_timeout
 
     def test_timeouts(self) -> None:
         test_dict = {
@@ -145,33 +150,36 @@ class WatchdogTestCase(TestCase):
             patch("systemd_watchdog.WatchDog._send"),  # Don't do anything on send
         ):
             cut = WatchDog(sock=sentinel.socket)
-            self.assertEqual(cut.timeout, 2000000)
-            self.assertTrue(cut.notify_due)  # At start, it is "overdue" since never sent
+            assert cut.timeout == 2000000
+            assert cut.notify_due  # At start, it is "overdue" since never sent
             cut.notify()
-            self.assertFalse(cut.notify_due)  # It shouldn't be expecting already
+            assert not cut.notify_due  # It shouldn't be expecting already
             sleep(0.7)
-            self.assertFalse(cut.notify_due)  # Still shouldn't
+            assert not cut.notify_due  # Still shouldn't
             sleep(0.4)
-            self.assertTrue(cut.notify_due)  # Now it should
+            assert cut.notify_due  # Now it should
 
-        with patch.dict(os.environ, test_dict, clear=True), patch("systemd_watchdog.WatchDog._send") as patched_send:
+        with (
+            patch.dict(os.environ, test_dict, clear=True),
+            patch("systemd_watchdog.WatchDog._send") as patched_send,
+        ):
             # Similar to above, but instead we intercept send and leave the logic to ping()
             cut = WatchDog(sock=sentinel.socket)
-            self.assertEqual(cut.timeout, 2000000)
-            self.assertTrue(cut.notify_due)  # At start, it is "overdue" since never sent
+            assert cut.timeout == 2000000
+            assert cut.notify_due  # At start, it is "overdue" since never sent
             cut.notify()
             patched_send.assert_called_once_with("WATCHDOG=1\n")
             patched_send.reset_mock()
             res = cut.ping()
-            self.assertFalse(res)  # It shouldn't be expecting already
+            assert not res  # It shouldn't be expecting already
             patched_send.assert_not_called()
             sleep(0.7)
             res = cut.ping()
-            self.assertFalse(res)  # Still shouldn't
+            assert not res  # Still shouldn't
             patched_send.assert_not_called()
             sleep(0.4)
             res = cut.beat()  # Test the alias
-            self.assertTrue(res)  # Now it should
+            assert res  # Now it should
             patched_send.assert_called_once_with("WATCHDOG=1\n")
 
 

@@ -17,33 +17,125 @@ keywords = ["sd_notify", "sd_watchdog_enabled", "systemd", "watchdog"]
 license = "MIT"
 name = "systemd-watchdog"
 readme = "README.md"
-requires-python = ">=3.9"
-version = "1.0.1"
+requires-python = ">=3.12"
+version = "1.0.3"
 
 [project.urls]
 Homepage = "http://github.com/AaronDMarasco/systemd-watchdog/"
 Issues = "http://github.com/AaronDMarasco/systemd-watchdog/issues"
 
-[tool.black]
-line-length = 120
-target-version = ["py310"]
+[tool.coverage.report]
+exclude_also = [
+    "return NotImplemented",
+]
+skip_empty = true
+sort = "-cover"
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "test_*",
+]
 
 [tool.poetry]
 include = [
   { path = "example/*", format = "sdist" },
 ]
 
+[tool.pyrefly]
+min-severity = "warn"
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
+
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py312"
+# output-prefer-rule-codes = true
+
+[tool.ruff.format]
+preview = true
 
 [tool.ruff.lint]
-select = ["ALL"]
-ignore = ["D203", "D212", "PT009"]
+select = [
+    "A",  # Built-ins
+    "ANN",  # Annotations
+    "ARG",  # Unused arguments
+    "ASYNC",  # Not really in this code
+    "B",  # flake8-bugbear
+    "BLE",  # Blind exceptions
+    "C4",  # Comprehensions
+    "COM",  # Commas
+    "DTZ",  # Date/timezone
+    "E",  # pycodestyle
+    "EM",  # Err messages
+    "EXE",  # Executables
+    "F",  # Pyflakes
+    "FA",  # Future annotations
+    "FURB",  # "refurb" tool (upgrade hints)
+    "G",  # Logging (format)
+    "I",  # isort
+    "ICN",  # Import Conventions
+    "ISC",  # Implicit string concat
+    "LOG",  # Logging
+    "N",  # naming
+    "NPY",  # Numpy best practices
+    "PERF",  # Performance
+    "PIE",  # Flake8 PIE ?
+    "PL",  # pylint
+    "PT",  # Pytest styles
+    "PTH",  # Pathlib rocks
+    "PYI",  # Flake PYI (?)
+    "Q",  # Quotes
+    "RET",  # Returns
+    "RSE",  # Raise
+    "RUF",  # Ruff-specific
+    "S",  # Security (Bandit)
+    "SIM",  # flake8-simplify
+    "SLF",  # self usage
+    "SLOT",  # Slot usage
+    "T20",  # Ban print
+    "TC",  # Type checking
+    "TID",  # Tidy imports
+    "TRY",  # Clean up try blocks
+    "UP",  # pyupgrade
+    "W",  # pycodestyle
+    "YTT",  # Flake 2020
+    # "D",  # Documentation (pydocstyle)
+    # "DOC",  # Documentation (pydoclint)
+    # "TD",  # TODO
+]
+preview = true
+ignore = [
+    "assert",
+    "blind-except",
+    "magic-value-comparison",
+    "missing-terminal-punctuation",
+    "missing-trailing-comma",
+    "missing-trailing-period",
+    "too-many-statements-in-try-clause",
+    # "docstring-missing-exception",
+    # "docstring-missing-returns",
+]
 
 [tool.ruff.lint.per-file-ignores]
 "test_*.py" = [
-    "D102",    # don't care about docstrings
-    "SLF001",  # pokes internals
+    "private-member-access",  # pokes internals
+    "undocumented-public-method",  # don't care about docstrings
 ]
-"systemd_watchdog/__init__.py" = ["F401"]
+"systemd_watchdog/__init__.py" = ["unused-import"]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.0",
+    "poetry>=2",
+    "pyrefly>=1.3.0",
+    "pytest-cov>=7.1.0",
+    "pytest>=9.1.1",
+    "ruff>=0.16.10",
+    "ssort>=0.17.0",
+]

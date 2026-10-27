@@ -2,7 +2,6 @@
 
 ![](https://img.shields.io/pypi/l/systemd-watchdog)
 ![](https://img.shields.io/pypi/v/systemd-watchdog.svg)
-![](https://img.shields.io/travis/com/aarondmarasco/systemd-watchdog)
 ![](https://img.shields.io/pypi/wheel/systemd-watchdog.svg)
 ![](https://img.shields.io/pypi/pyversions/systemd-watchdog.svg)
 
@@ -11,6 +10,10 @@ sd_notify(3) and sd_watchdog_enabled(3) client functionality implemented in Pyth
 ## Install
 ```
 $ pip install systemd-watchdog
+```
+or
+```
+$ uv add systemd-watchdog
 ```
 or
 ```
@@ -23,6 +26,7 @@ $ make install
 ```python
 #!/bin/env python3
 """systemd_watchdog example."""
+
 import time
 
 import systemd_watchdog
@@ -133,6 +137,10 @@ If `msg` is provided, it will be reported as a status message prior to the error
 
 
 ## History
+Aaron D. Marasco Aug 2025 (1.0.3)
+ * Misc cleanup
+ * Moved from Travis to GitHub for CI
+
 Aaron D. Marasco Aug 2025 (1.0.0, 1.0.1)
  * Added typing
  * Modernized build (pyproject.toml, poetry, etc)

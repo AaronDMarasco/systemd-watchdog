@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 import socket
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 
@@ -17,9 +17,18 @@ class WatchDog:
 
     _default_timeout = timedelta(hours=24)  # Safe value to do math with; if disabled won't matter
 
-    def __init__(self, sock: socket.socket | None = None, addr: str | None = None) -> None:  # noqa: D107
+    def ping(self) -> bool:
+        """Send healthy notification to systemd if prudent to."""
+        if self.notify_due:
+            self.notify()
+            return True
+        return False
+
+    beat = ping  # alias for ping if you prefer heartbeat terminology
+
+    def __init__(self, sock: socket.socket | None = None, addr: str | None = None) -> None:
         self._address: str | None = addr or os.getenv("NOTIFY_SOCKET")
-        self._lastcall: datetime = datetime.fromtimestamp(1, tz=timezone.utc)
+        self._lastcall: datetime = datetime.fromtimestamp(1, tz=UTC)
         self._socket: socket.socket = sock or socket.socket(family=socket.AF_UNIX, type=socket.SOCK_DGRAM)
         self._timeout_td: timedelta = self._default_timeout
 
@@ -31,7 +40,7 @@ class WatchDog:
         if self._address:
             wtime = os.getenv("WATCHDOG_USEC")
             wpid = os.getenv("WATCHDOG_PID")
-            if wtime and wtime.isdigit():  # noqa: SIM102
+            if wtime and wtime.isdigit():  # ruff: ignore[collapsible-if]
                 if wpid is None or (wpid.isdigit() and (wpid == str(os.getpid()))):
                     self._timeout_td = timedelta(microseconds=int(wtime))
 
@@ -46,6 +55,10 @@ class WatchDog:
     def is_enabled(self) -> bool:
         """Property indicating whether watchdog is enabled."""
         return bool(self._address)
+
+    @property
+    def _now(self) -> datetime:
+        return datetime.now(tz=UTC)
 
     def notify(self) -> None:
         """Send healthy notification to systemd."""
@@ -66,19 +79,6 @@ class WatchDog:
         if msg:
             self.status(msg)
         self._send("WATCHDOG=trigger\n")
-
-    @property
-    def _now(self) -> datetime:
-        return datetime.now(tz=timezone.utc)
-
-    def ping(self) -> bool:
-        """Send healthy notification to systemd if prudent to."""
-        if self.notify_due:
-            self.notify()
-            return True
-        return False
-
-    beat = ping  # alias for ping if you prefer heartbeat terminology
 
     def ready(self) -> None:
         """Report ready service state, i.e. completed init."""
